@@ -2,17 +2,21 @@
 #include <stdio.h>
 #include "imageprocessing.h"
 #include <FreeImage.h>
-
 void yyerror(char *c);
 int yylex(void);
+float vmax[3];
 
 %}
 %union {
   char    strval[50];
   int     ival;
+  float fval;
+  
 }
+
 %token <strval> STRING
-%token <ival> VAR IGUAL EOL ASPA
+%token <ival> VAR IGUAL EOL ASPA VEZES DIVIDIDO ABRE FECHA
+%token <fval> FLOAT
 %left SOMA
 
 %%
@@ -31,6 +35,32 @@ EXPRESSAO:
                           }
 
     ;
+    
+    
+    | STRING IGUAL STRING DIVIDIDO FLOAT {
+        printf("Aplicando brilho /%f\n", $5);
+        imagem I = abrir_imagem($3);
+        brilho_imagem(&I,1/$5);
+        salvar_imagem($1,&I);
+                                       }
+    ;
+ 
+    | STRING IGUAL STRING VEZES FLOAT {
+        printf("Aplicando brilho *%f\n", $5);
+        imagem I = abrir_imagem($3);
+        brilho_imagem(&I,$5);
+        salvar_imagem($1,&I);
+                                       }
+    ;                                
+    
+    | ABRE STRING FECHA {
+        printf("Calcula maximo\n");
+        imagem I = abrir_imagem($2);
+        vmax_imagem(&I, &vmax[0]);
+                        }
+    ;
+    
+    
 
 %%
 
